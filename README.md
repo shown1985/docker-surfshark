@@ -2,20 +2,13 @@
 
 Docker container with OpenVPN client preconfigured for SurfShark
 
-[![](https://images.microbadger.com/badges/version/ilteoood/docker-surfshark.svg)](https://microbadger.com/images/ilteoood/docker-surfshark "Get your own version badge on microbadger.com")
-[![](https://images.microbadger.com/badges/image/ilteoood/docker-surfshark.svg)](https://microbadger.com/images/ilteoood/docker-surfshark "Get your own image badge on microbadger.com")
-![Build only image](https://github.com/ilteoood/docker-surfshark/workflows/Build%20only%20image/badge.svg?branch=master)
-
-------------------------------------------------
-<p align="center">
-    <img src="https://github.com/ilteoood/docker-surfshark/raw/master/images/logo.png" alt="logo"/>
-</p>
-
 This is a [multi-arch](https://medium.com/gft-engineering/docker-why-multi-arch-images-matters-927397a5be2e) image, updated automatically thanks to [GitHub Actions](https://github.com/features/actions).
 
 Its purpose is to provide the [SurfShark VPN](https://surfshark.com/) to all your containers. 
 
 The link is established using the [OpenVPN](https://openvpn.net/) client.
+
+Shadowsocks server added, so it can pass through via the surfshark VPN for using
 
 ## Configuration
 
@@ -51,25 +44,25 @@ version: "2"
 
 services: 
     surfshark:
-        image: ilteoood/docker-surfshark
+        image: shown1985/docker-surfshark
         container_name: surfshark
         environment: 
             - SURFSHARK_USER=YOUR_SURFSHARK_USER
             - SURFSHARK_PASSWORD=YOUR_SURFSHARK_PASSWORD
-            - SURFSHARK_COUNTRY=it
-            - SURFSHARK_CITY=mil
-            - CONNECTION_TYPE=udp
-            - LAN_NETWORK=
+            - SURFSHARK_COUNTRY=us
+            - SURFSHARK_CITY=lax
+            - CONNECTION_TYPE=tcp
+            - LAN_NETWORK=172.17.0.0/24      #Optional - Used to access attached containers web ui
         cap_add: 
             - NET_ADMIN
         devices:
             - /dev/net/tun
         ports:
-            - 1080:1080 #if you want to use the socks5 server
-            - 9091:9091 #we open here the port for transmission, as this container will be the access point for the others
+            - 8388:8388 #Port for ss
         restart: unless-stopped
         dns:
-            - 1.1.1.1
+            - 8.8.8.8
+            - 223.5.5.5
     service_test:
         image: byrnedo/alpine-curl
         container_name: alpine
@@ -78,23 +71,17 @@ services:
             - surfshark
         network_mode: service:surfshark
         restart: always
-    transmission:
-        image: linuxserver/transmission
-        container_name: transmission
-        environment:
-            - PUID=1000
-            - PGID=1000
-            - TZ=Europe/Rome
-        #ports:
-            #- 9091:9091 needed to access transmission's GUI
+    ss:
+        image: dockage/shadowsocks-server:latest
+        container_name: ss    
         network_mode: service:surfshark
-        restart: unless-stopped
+        restart: unless-stopped  
 ```
 
 Or you can use the standard `docker run` command.
 
 ```sh
-sudo docker run -it --cap-add=NET_ADMIN --device /dev/net/tun --name CONTAINER_NAME -e SURFSHARK_USER=YOUR_SURFSHARK_USER -e SURFSHARK_PASSWORD=YOUR_SURFSHARK_PASSWORD ilteoood/docker-surfshark
+sudo docker run -it --cap-add=NET_ADMIN --device /dev/net/tun --name CONTAINER_NAME -e SURFSHARK_USER=YOUR_SURFSHARK_USER -e SURFSHARK_PASSWORD=YOUR_SURFSHARK_PASSWORD shown1985/docker-surfshark:latest
 ```
 
 If you want to attach a container to the VPN, you can simply run:
@@ -120,16 +107,3 @@ To avoid it, you can provide your own `Surfshark_Config.zip` file, downloading i
 Then, you **must** make the `zip` available inside the container, using a [bind mount](https://docs.docker.com/storage/bind-mounts/) or a [volume](https://docs.docker.com/storage/volumes/).
 
 Finally, you **must** set the `OVPN_CONFIGS` environment variable.
-
-## Do you like my work?
-<p align="center">
-    <a href="https://www.patreon.com/ilteoood">
-        <img align="center" alt="patreon" src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Dilteoood%26type%3Dpatrons&style=for-the-badge">
-        </img>
-    </a>
-    or
-    <a href="https://www.buymeacoffee.com/ilteoood">
-        <img align="center" alt="buy-me-a-coffee" src="https://img.shields.io/badge/-buy_me_a%C2%A0coffee-gray?logo=buy-me-a-coffee">
-        </img>
-    </a>
-</p>

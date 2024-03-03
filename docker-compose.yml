@@ -2,40 +2,35 @@ version: "2"
 
 services: 
     surfshark:
-        image: ilteoood/docker-surfshark
+        image: shown1985/docker-surfshark
         container_name: surfshark
         environment: 
-            - SURFSHARK_USER=YOUR_SURFSHARK_USER
-            - SURFSHARK_PASSWORD=YOUR_SURFSHARK_PASSWORD
-            - SURFSHARK_COUNTRY=it
-            - SURFSHARK_CITY=mil
-            - CONNECTION_TYPE=udp
-            - LAN_NETWORK=192.168.0.0/24      #Optional - Used to access attached containers web ui
+            - SURFSHARK_USER=YOUR_OWN_SURFSARK_NAME       #Can be found in https://my.surfshark.com/vpn/manual-setup/
+            - SURFSHARK_PASSWORD=YOUR_OWN_SURFSARK_PASSWORD 
+            - SURFSHARK_COUNTRY=us
+            - SURFSHARK_CITY=lax
+            - CONNECTION_TYPE=tcp
+            - LAN_NETWORK=172.17.0.0/24      #Optional - Used to access attached containers web ui
         cap_add: 
             - NET_ADMIN
         devices:
             - /dev/net/tun
         ports:
-            - 9091:9091 #We open here the port for transmission, as this container will be the access point for the others
+            - 8388:8388 #Port for ss
         restart: unless-stopped
         dns:
-            - 1.1.1.1
-    service_test:
-        image: byrnedo/alpine-curl
-        container_name: alpine
-        command: -L 'https://ipinfo.io'
-        depends_on: 
-            - surfshark
+            - 8.8.8.8
+            - 223.5.5.5
+    # service_test:
+    #     image: byrnedo/alpine-curl
+    #     container_name: alpine
+    #     command: -L 'https://ipinfo.io'
+    #     depends_on: 
+    #         - surfshark
+    #     network_mode: service:surfshark
+    #     restart: always
+    ss:
+        image: dockage/shadowsocks-server:latest
+        container_name: ss    
         network_mode: service:surfshark
-        restart: always
-    transmission:
-        image: linuxserver/transmission
-        container_name: transmission
-        environment:
-            - PUID=1000
-            - PGID=1000
-            - TZ=Europe/Rome
-        #ports:
-            #- 9091:9091 needed to access transmission's GUI
-        network_mode: service:surfshark
-        restart: unless-stopped
+        restart: unless-stopped  
