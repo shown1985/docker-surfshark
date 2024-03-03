@@ -5,8 +5,8 @@ services:
         image: shown1985/docker-surfshark
         container_name: surfshark
         environment: 
-            - SURFSHARK_USER=YOUR_OWN_SURFSARK_NAME       #Can be found in https://my.surfshark.com/vpn/manual-setup/
-            - SURFSHARK_PASSWORD=YOUR_OWN_SURFSARK_PASSWORD 
+            - SURFSHARK_USER=YOUR_SURFSHARK_USER
+            - SURFSHARK_PASSWORD=YOUR_SURFSHARK_PASSWORD
             - SURFSHARK_COUNTRY=us
             - SURFSHARK_CITY=lax
             - CONNECTION_TYPE=tcp
