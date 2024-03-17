@@ -38,14 +38,21 @@ if [ "${ENABLE_MASQUERADE}" = "true" ]; then
   iptables -t nat -A POSTROUTING -o tun+ -j MASQUERADE
 fi
 
-# Check if ADD_ROUTE_SCRIPT variable is not empty
-if [ ! -z "$ADD_ROUTE_SCRIPT" ]; then
+# Get the default gateway IP address for eth0
+DEFAULT_GATEWAY=$(ip route show default | grep -i 'default via'| awk '{print $3}')
+
+# Check if ADD_ROUTE_SCRIPT variable is set and not empty, and if DEFAULT_GATEWAY is found
+if [ ! -z "$ADD_ROUTE_SCRIPT" ] && [ ! -z "$DEFAULT_GATEWAY" ]; then
+  # Create or overwrite add-route.sh with the environment variable command
+  # Replace the placeholder for the gateway IP with the actual default gateway IP obtained above
   echo '#!/bin/sh' > /etc/openvpn/add-route.sh
-  echo "$ADD_ROUTE_SCRIPT" >> /etc/openvpn/add-route.sh
+  echo "${ADD_ROUTE_SCRIPT/\{DEFAULT_GATEWAY\}/$DEFAULT_GATEWAY}" >> /etc/openvpn/add-route.sh
   chmod +x /etc/openvpn/add-route.sh
+
+  # Execute the add-route.sh script
   /etc/openvpn/add-route.sh
 else
-  echo "No ADD_ROUTE_SCRIPT provided. Skipping route addition."
+  echo "ADD_ROUTE_SCRIPT not provided or default gateway not found. Skipping route addition."
 fi
 
 openvpn --config $VPN_FILE --auth-user-pass vpn-auth.txt --mute-replay-warnings $OPENVPN_OPTS --script-security 2 --up /vpn/sockd.sh
