@@ -38,6 +38,16 @@ if [ "${ENABLE_MASQUERADE}" = "true" ]; then
   iptables -t nat -A POSTROUTING -o tun+ -j MASQUERADE
 fi
 
+# Check if ADD_ROUTE_SCRIPT variable is not empty
+if [ ! -z "$ADD_ROUTE_SCRIPT" ]; then
+  echo '#!/bin/sh' > /etc/openvpn/add-route.sh
+  echo "$ADD_ROUTE_SCRIPT" >> /etc/openvpn/add-route.sh
+  chmod +x /etc/openvpn/add-route.sh
+  /etc/openvpn/add-route.sh
+else
+  echo "No ADD_ROUTE_SCRIPT provided. Skipping route addition."
+fi
+
 openvpn --config $VPN_FILE --auth-user-pass vpn-auth.txt --mute-replay-warnings $OPENVPN_OPTS --script-security 2 --up /vpn/sockd.sh
 
 if [ "${ENABLE_KILL_SWITCH}" = "true" ]; then
