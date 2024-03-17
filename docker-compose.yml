@@ -10,7 +10,7 @@ services:
             - SURFSHARK_COUNTRY=us
             - SURFSHARK_CITY=lax
             # Add route if you need
-            # - ADD_ROUTE_SCRIPT=ip route add 172.25.69.81/32 via 172.20.0.1 dev eth0
+            # - ADD_ROUTE_SCRIPT=ip route add 172.25.69.81/32 via {DEFAULT_GATEWAY} dev eth0
             - CONNECTION_TYPE=tcp
             - LAN_NETWORK=172.17.0.0/24      #Optional - Used to access attached containers web ui
         cap_add: 
