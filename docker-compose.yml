@@ -5,14 +5,16 @@ services:
         image: shown1985/docker-surfshark
         container_name: surfshark
         environment: 
-            - SURFSHARK_USER=YOUR_SURFSHARK_USER
-            - SURFSHARK_PASSWORD=YOUR_SURFSHARK_PASSWORD
-            - SURFSHARK_COUNTRY=us
-            - SURFSHARK_CITY=lax
-            # Add route if you need
-            # - ADD_ROUTE_SCRIPT=ip route add 172.25.69.81/32 via {DEFAULT_GATEWAY} dev eth0
-            - CONNECTION_TYPE=tcp
-            - LAN_NETWORK=172.17.0.0/24      #Optional - Used to access attached containers web ui
+          SURFSHARK_USER: YOUR_SURFSHARK_USER
+          SURFSHARK_PASSWORD: YOUR_SURFSHARK_PASSWORD
+          SURFSHARK_COUNTRY: us
+          SURFSHARK_CITY: lax
+         # Add route if you need
+         # ADD_ROUTE_SCRIPT: |
+         #   ip route add 172.25.69.81/32 via {DEFAULT_GATEWAY} dev eth0
+         #   ip route add 192.168.0.252/32 via {DEFAULT_GATEWAY} dev eth0
+          CONNECTION_TYPE: tcp
+          # LAN_NETWORK=172.17.0.0/24      #Optional - Used to access attached containers web ui
         cap_add: 
             - NET_ADMIN
         devices:
